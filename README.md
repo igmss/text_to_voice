@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Egyptian Arabic Text-to-Speech Voice Over System
 
 A comprehensive text-to-speech system specifically designed for Egyptian Arabic dialect, with support for Egyptian slang and voice over production.
@@ -96,3 +97,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Thanks to all contributors and supporters of this project
 - Special thanks to the Egyptian Arabic language community 
+=======
+# text_to_voice
+>>>>>>> c2106817a37a158bd9c5319fd85bedf826c3d76b
