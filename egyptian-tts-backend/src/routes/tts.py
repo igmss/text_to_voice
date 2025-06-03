@@ -204,21 +204,23 @@ def generate_voice():
         audio_path = os.path.join(temp_audio_dir, audio_filename)
         
         # Generate voice over
-        success = voice_synthesizer.synthesize_speech(
+        audio_data, sample_rate, metadata = voice_synthesizer.synthesize_voice_over(
             text=text,
-            output_path=audio_path,
-            voice_preset=voice_preset,
-            speaker_id=speaker_id
+            speaker_id=speaker_id,
+            voice_preset=voice_preset
         )
         
-        if not success:
-            return jsonify({'error': 'Failed to generate voice over'}), 500
+        # Save audio to file
+        voice_synthesizer.save_audio(audio_data, sample_rate, audio_path)
         
         # Process audio (mock processing)
         processed_path = audio_processor.process_audio(audio_path)
         
         # Evaluate quality
         quality_metrics = tts_evaluator.evaluate_audio(processed_path, text)
+        
+        # Update quality metrics with metadata
+        quality_metrics.update(metadata.get('quality_metrics', {}))
         
         # Prepare metadata
         metadata = {
@@ -337,33 +339,27 @@ def batch_generate():
                 audio_path = os.path.join(temp_audio_dir, audio_filename)
                 
                 # Generate voice over
-                success = voice_synthesizer.synthesize_speech(
+                audio_data, sample_rate, metadata = voice_synthesizer.synthesize_voice_over(
                     text=text.strip(),
-                    output_path=audio_path,
-                    voice_preset=voice_preset,
-                    speaker_id=speaker_id
+                    speaker_id=speaker_id,
+                    voice_preset=voice_preset
                 )
                 
-                if success:
-                    # Process and evaluate
-                    processed_path = audio_processor.process_audio(audio_path)
-                    quality_metrics = tts_evaluator.evaluate_audio(processed_path, text)
-                    
-                    results.append({
-                        'index': i,
-                        'text': text.strip(),
-                        'audio_id': audio_id,
-                        'audio_url': f'/api/audio/{audio_id}',
-                        'success': True,
-                        'quality_score': quality_metrics.get('overall_score', 0.85)
-                    })
-                else:
-                    results.append({
-                        'index': i,
-                        'text': text.strip(),
-                        'success': False,
-                        'error': 'Failed to generate voice over'
-                    })
+                # Save audio to file
+                voice_synthesizer.save_audio(audio_data, sample_rate, audio_path)
+                
+                # Process and evaluate
+                processed_path = audio_processor.process_audio(audio_path)
+                quality_metrics = tts_evaluator.evaluate_audio(processed_path, text)
+                
+                results.append({
+                    'index': i,
+                    'text': text.strip(),
+                    'audio_id': audio_id,
+                    'audio_url': f'/api/audio/{audio_id}',
+                    'success': True,
+                    'quality_score': quality_metrics.get('overall_score', 0.85)
+                })
                     
             except Exception as e:
                 results.append({
