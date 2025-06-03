@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Egyptian Arabic TTS - Test Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .api-url {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(52, 152, 219, 0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+        
+        .status.error {
+            background: #fdeaea;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        
+        .status.loading {
+            background: #e8f4f8;
+            color: #3498db;
+            border: 1px solid #3498db;
+        }
+        
+        .audio-player {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        
+        .instructions p {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎙️ Egyptian Arabic TTS</h1>
+            <p>Professional Voice Over System - Test Interface</p>
+        </div>
+        
+        <div class="main-content">
+            <!-- Instructions Section -->
+            <div class="section">
+                <h2>📋 How to Use This Interface</h2>
+                <div class="instructions">
+                    <h3>🔧 Setup Required:</h3>
+                    <p><strong>1.</strong> Make sure the TTS server is running on your system</p>
+                    <p><strong>2.</strong> Update the API URL below to match your server's address</p>
+                    <p><strong>3.</strong> Test the connection using the "Test API Health" button</p>
+                    <p><strong>4.</strong> Once connected, you can generate voice overs from text</p>
+                </div>
+            </div>
+            
+            <!-- API Configuration Section -->
+            <div class="section">
+                <h2>🌐 API Configuration</h2>
+                <div class="form-group">
+                    <label for="apiUrl">API Base URL:</label>
+                    <input type="text" id="apiUrl" class="api-url" value="https://5001-i4bjzbrfzdbf1lnmbrew1-e38eca77.manusvm.computer" placeholder="Enter your API URL here">
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <button class="test-button" onclick="testHealth()">🔍 Test API Health</button>
+                    <button class="test-button" onclick="testSystemInfo()">📊 Test System Info</button>
+                    <button class="test-button" onclick="testPresets()">🎵 Test Voice Presets</button>
+                </div>
+                
+                <div id="connectionStatus" class="status"></div>
+            </div>
+            
+            <!-- Text to Speech Section -->
+            <div class="section">
+                <h2>🎤 Text to Speech Generation</h2>
+                <div class="form-group">
+                    <label for="textInput">Enter your text (Arabic or English):</label>
+                    <textarea 
+                        id="textInput" 
+                        placeholder="مرحبا بكم في نظام تحويل النص إلى كلام المصري&#10;&#10;Hello, welcome to the Egyptian Arabic TTS system"
+                    ></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="speakerSelect">Speaker Voice:</label>
+                        <select id="speakerSelect">
+                            <option value="default">Default Egyptian Voice</option>
+                            <option value="male-young">Ahmed - Young Male</option>
+                            <option value="female-adult">Fatima - Adult Female</option>
+                            <option value="male-mature">Omar - Mature Male</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="presetSelect">Voice Preset:</label>
+                        <select id="presetSelect">
+                            <option value="commercial-warm">Commercial - Warm</option>
+                            <option value="commercial-energetic">Commercial - Energetic</option>
+                            <option value="educational-clear">Educational - Clear</option>
+                            <option value="documentary-authoritative">Documentary - Authoritative</option>
+                            <option value="audiobook-natural">Audiobook - Natural</option>
+                            <option value="news-professional">News - Professional</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button id="generateBtn" class="test-button" onclick="generateVoice()">
+                    🎤 Generate Voice Over
+                </button>
+                
+                <div id="generationStatus" class="status"></div>
+            </div>
+            
+            <!-- Audio Player Section -->
+            <div id="audioPlayer" class="audio-player">
+                <h3>🔊 Generated Audio</h3>
+                <audio id="audioElement" controls style="width: 100%; margin: 15px 0;">
+                    Your browser does not support the audio element.
+                </audio>
+                <div id="audioInfo" style="margin-top: 15px;"></div>
+                <button id="downloadBtn" class="test-button" onclick="downloadAudio()" style="margin-top: 15px;">
+                    📥 Download Audio
+                </button>
+            </div>
+            
+            <!-- Quick Test Section -->
+            <div class="section">
+                <h2>⚡ Quick Tests</h2>
+                <p>Use these buttons to quickly test different aspects of the system:</p>
+                <div style="margin: 20px 0;">
+                    <button class="test-button" onclick="quickTestArabic()">🇪🇬 Test Arabic Text</button>
+                    <button class="test-button" onclick="quickTestEnglish()">🇺🇸 Test English Text</button>
+                    <button class="test-button" onclick="quickTestCommercial()">📢 Test Commercial Voice</button>
+                    <button class="test-button" onclick="quickTestNews()">📺 Test News Voice</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAudioUrl = null;
+        
+        // Get API base URL
+        function getApiUrl() {
+            return document.getElementById('apiUrl').value.trim();
+        }
+        
+        // Show status message
+        function showStatus(elementId, message, type = 'loading') {
+            const statusEl = document.getElementById(elementId);
+            statusEl.className = `status ${type}`;
+            statusEl.style.display = 'block';
+            statusEl.innerHTML = type === 'loading' ? 
+                `<div class="loading-spinner"></div> ${message}` : 
+                message;
+        }
+        
+        // Hide status
+        function hideStatus(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+        
+        // Test API health
+        async function testHealth() {
+            const apiUrl = getApiUrl();
+            if (!apiUrl) {
+                showStatus('connectionStatus', 'Please enter an API URL', 'error');
+                return;
+            }
+            
+            showStatus('connectionStatus', 'Testing API connection...');
+            
+            try {
+                const response = await fetch(`${apiUrl}/api/health`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showStatus('connectionStatus', 
+                        `✅ API is healthy! Status: ${data.status}, Version: ${data.version}`, 
+                        'success'
+                    );
+                } else {
+                    showStatus('connectionStatus', 
+                        `❌ API returned error: ${response.status} ${response.statusText}`, 
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showStatus('connectionStatus', 
+                    `❌ Connection failed: ${error.message}. Check if the server is running and the URL is correct.`, 
+                    'error'
+                );
+            }
+        }
+        
+        // Test system info
+        async function testSystemInfo() {
+            const apiUrl = getApiUrl();
+            showStatus('connectionStatus', 'Loading system information...');
+            
+            try {
+                const response = await fetch(`${apiUrl}/api/system-info`);
+                if (response.ok) {
+                    const data = await response.json();
+                    showStatus('connectionStatus', 
+                        `📊 System: ${data.system}, Languages: ${data.languages.join(', ')}, Presets: ${data.voice_presets.length}`, 
+                        'success'
+                    );
+                } else {
+                    showStatus('connectionStatus', `❌ System info failed: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showStatus('connectionStatus', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test voice presets
+        async function testPresets() {
+            const apiUrl = getApiUrl();
+            showStatus('connectionStatus', 'Loading voice presets...');
+            
+            try {
+                const response = await fetch(`${apiUrl}/api/presets`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const presetCount = Object.keys(data.presets || {}).length;
+                    showStatus('connectionStatus', 
+                        `🎵 Found ${presetCount} voice presets available`, 
+                        'success'
+                    );
+                } else {
+                    showStatus('connectionStatus', `❌ Presets test failed: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showStatus('connectionStatus', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Generate voice over
+        async function generateVoice() {
+            const apiUrl = getApiUrl();
+            const text = document.getElementById('textInput').value.trim();
+            
+            if (!apiUrl) {
+                showStatus('generationStatus', 'Please enter an API URL first', 'error');
+                return;
+            }
+            
+            if (!text) {
+                showStatus('generationStatus', 'Please enter some text', 'error');
+                return;
+            }
+            
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            showStatus('generationStatus', 'Generating voice over...');
+            document.getElementById('audioPlayer').style.display = 'none';
+            
+            try {
+                const response = await fetch(`${apiUrl}/api/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        speaker_id: document.getElementById('speakerSelect').value,
+                        voice_preset: document.getElementById('presetSelect').value
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showStatus('generationStatus', 'Voice over generated successfully!', 'success');
+                    displayAudio(data, apiUrl);
+                } else {
+                    showStatus('generationStatus', `❌ Generation failed: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                showStatus('generationStatus', `❌ Network error: ${error.message}`, 'error');
+            } finally {
+                generateBtn.disabled = false;
+            }
+        }
+        
+        // Display audio player and info
+        function displayAudio(data, apiUrl) {
+            currentAudioUrl = `${apiUrl}${data.audio_url}`;
+            const audioElement = document.getElementById('audioElement');
+            audioElement.src = currentAudioUrl;
+            document.getElementById('audioPlayer').style.display = 'block';
+            
+            // Display audio info
+            const metadata = data.metadata || {};
+            const audioInfo = document.getElementById('audioInfo');
+            audioInfo.innerHTML = `
+                <div style="background: white; padding: 15px; border-radius: 10px;">
+                    <strong>Audio Information:</strong><br>
+                    Duration: ${(metadata.duration || 0).toFixed(2)}s<br>
+                    Sample Rate: ${metadata.sample_rate || 'Unknown'}Hz<br>
+                    Quality Score: ${((metadata.quality_score || 0) * 100).toFixed(0)}%<br>
+                    Method: ${metadata.synthesis_method || 'Unknown'}<br>
+                    Speaker: ${metadata.speaker || 'Unknown'}<br>
+                    Preset: ${metadata.preset || 'Unknown'}
+                </div>
+            `;
+        }
+        
+        // Download audio
+        function downloadAudio() {
+            if (currentAudioUrl) {
+                const a = document.createElement('a');
+                a.href = currentAudioUrl;
+                a.download = `voice_over_${Date.now()}.wav`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        }
+        
+        // Quick test functions
+        function quickTestArabic() {
+            document.getElementById('textInput').value = 'مرحبا بكم في نظام تحويل النص إلى كلام المصري';
+            document.getElementById('presetSelect').value = 'commercial-warm';
+            generateVoice();
+        }
+        
+        function quickTestEnglish() {
+            document.getElementById('textInput').value = 'Hello, welcome to the Egyptian Arabic TTS system';
+            document.getElementById('presetSelect').value = 'news-professional';
+            generateVoice();
+        }
+        
+        function quickTestCommercial() {
+            document.getElementById('textInput').value = 'اكتشف منتجاتنا الجديدة والمميزة';
+            document.getElementById('presetSelect').value = 'commercial-energetic';
+            generateVoice();
+        }
+        
+        function quickTestNews() {
+            document.getElementById('textInput').value = 'في الأخبار اليوم، نقدم لكم آخر التطورات';
+            document.getElementById('presetSelect').value = 'news-professional';
+            generateVoice();
+        }
+        
+        // Auto-hide status messages after 5 seconds
+        function setupAutoHide() {
+            ['connectionStatus', 'generationStatus'].forEach(id => {
+                const observer = new MutationObserver(() => {
+                    const el = document.getElementById(id);
+                    if (el.classList.contains('success') || el.classList.contains('error')) {
+                        setTimeout(() => hideStatus(id), 5000);
+                    }
+                });
+                observer.observe(document.getElementById(id), { 
+                    attributes: true, 
+                    attributeFilter: ['class'] 
+                });
+            });
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            setupAutoHide();
+            // Auto-test connection on load
+            setTimeout(testHealth, 1000);
+        });
+    </script>
+</body>
+</html>
+

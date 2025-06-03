@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Egyptian Arabic TTS - Voice Over System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+        
+        .status.error {
+            background: #fdeaea;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        
+        .status.loading {
+            background: #e8f4f8;
+            color: #3498db;
+            border: 1px solid #3498db;
+        }
+        
+        .audio-player {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .audio-info {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .info-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .info-item .value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .info-item .label {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .preset-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .preset-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .preset-card.selected {
+            border-color: #3498db;
+            background: #e8f4f8;
+        }
+        
+        .preset-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .preset-card p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .preset-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎙️ Egyptian Arabic TTS</h1>
+            <p>Professional Voice Over System</p>
+        </div>
+        
+        <div class="main-content">
+            <!-- Text Input Section -->
+            <div class="section">
+                <h2>📝 Text to Speech</h2>
+                <div class="form-group">
+                    <label for="textInput">Enter your text (Arabic or English):</label>
+                    <textarea 
+                        id="textInput" 
+                        placeholder="مرحبا بكم في نظام تحويل النص إلى كلام المصري&#10;&#10;Hello, welcome to the Egyptian Arabic TTS system"
+                    ></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="speakerSelect">Speaker Voice:</label>
+                        <select id="speakerSelect">
+                            <option value="default">Default Egyptian Voice</option>
+                            <option value="male-young">Ahmed - Young Male</option>
+                            <option value="female-adult">Fatima - Adult Female</option>
+                            <option value="male-mature">Omar - Mature Male</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="presetSelect">Voice Preset:</label>
+                        <select id="presetSelect">
+                            <option value="commercial-warm">Commercial - Warm</option>
+                            <option value="commercial-energetic">Commercial - Energetic</option>
+                            <option value="educational-clear">Educational - Clear</option>
+                            <option value="documentary-authoritative">Documentary - Authoritative</option>
+                            <option value="audiobook-natural">Audiobook - Natural</option>
+                            <option value="news-professional">News - Professional</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button id="generateBtn" class="btn">
+                    🎤 Generate Voice Over
+                </button>
+                
+                <div id="status" class="status"></div>
+            </div>
+            
+            <!-- Audio Player Section -->
+            <div id="audioPlayer" class="audio-player">
+                <h3>🔊 Generated Audio</h3>
+                <div class="audio-controls">
+                    <audio id="audioElement" controls style="width: 100%;">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+                <div class="audio-info">
+                    <div class="info-grid" id="audioInfo">
+                        <!-- Audio info will be populated here -->
+                    </div>
+                </div>
+                <button id="downloadBtn" class="btn btn-success" style="margin-top: 15px;">
+                    📥 Download Audio
+                </button>
+            </div>
+            
+            <!-- System Info Section -->
+            <div class="section">
+                <h2>ℹ️ System Information</h2>
+                <button id="systemInfoBtn" class="btn btn-secondary">
+                    📊 Load System Info
+                </button>
+                <div id="systemInfo" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let currentAudioUrl = null;
+        
+        // DOM elements
+        const textInput = document.getElementById('textInput');
+        const speakerSelect = document.getElementById('speakerSelect');
+        const presetSelect = document.getElementById('presetSelect');
+        const generateBtn = document.getElementById('generateBtn');
+        const status = document.getElementById('status');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const audioElement = document.getElementById('audioElement');
+        const audioInfo = document.getElementById('audioInfo');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const systemInfoBtn = document.getElementById('systemInfoBtn');
+        const systemInfo = document.getElementById('systemInfo');
+        
+        // Show status message
+        function showStatus(message, type = 'loading') {
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+            status.innerHTML = type === 'loading' ? 
+                `<div class="loading-spinner"></div> ${message}` : 
+                message;
+        }
+        
+        // Hide status
+        function hideStatus() {
+            status.style.display = 'none';
+        }
+        
+        // Generate voice over
+        async function generateVoiceOver() {
+            const text = textInput.value.trim();
+            if (!text) {
+                showStatus('Please enter some text', 'error');
+                return;
+            }
+            
+            generateBtn.disabled = true;
+            showStatus('Generating voice over...');
+            audioPlayer.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        speaker_id: speakerSelect.value,
+                        voice_preset: presetSelect.value
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showStatus('Voice over generated successfully!', 'success');
+                    displayAudio(data);
+                } else {
+                    showStatus(`Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Network error: ${error.message}`, 'error');
+            } finally {
+                generateBtn.disabled = false;
+            }
+        }
+        
+        // Display audio player and info
+        function displayAudio(data) {
+            currentAudioUrl = `${API_BASE}${data.audio_url}`;
+            audioElement.src = currentAudioUrl;
+            audioPlayer.style.display = 'block';
+            
+            // Display audio info
+            const metadata = data.metadata;
+            const quality = data.quality_metrics;
+            
+            audioInfo.innerHTML = `
+                <div class="info-item">
+                    <div class="value">${metadata.duration.toFixed(2)}s</div>
+                    <div class="label">Duration</div>
+                </div>
+                <div class="info-item">
+                    <div class="value">${metadata.sample_rate}Hz</div>
+                    <div class="label">Sample Rate</div>
+                </div>
+                <div class="info-item">
+                    <div class="value">${(metadata.quality_score * 100).toFixed(0)}%</div>
+                    <div class="label">Quality Score</div>
+                </div>
+                <div class="info-item">
+                    <div class="value">${metadata.synthesis_method}</div>
+                    <div class="label">Method</div>
+                </div>
+                <div class="info-item">
+                    <div class="value">${metadata.speaker}</div>
+                    <div class="label">Speaker</div>
+                </div>
+                <div class="info-item">
+                    <div class="value">${metadata.preset}</div>
+                    <div class="label">Preset</div>
+                </div>
+            `;
+        }
+        
+        // Download audio
+        function downloadAudio() {
+            if (currentAudioUrl) {
+                const a = document.createElement('a');
+                a.href = currentAudioUrl;
+                a.download = `voice_over_${Date.now()}.wav`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        }
+        
+        // Load system info
+        async function loadSystemInfo() {
+            systemInfoBtn.disabled = true;
+            systemInfoBtn.innerHTML = '<div class="loading-spinner"></div> Loading...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/system-info`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    systemInfo.innerHTML = `
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                            <h3>${data.system}</h3>
+                            <p><strong>Version:</strong> ${data.version}</p>
+                            <p><strong>Languages:</strong> ${data.languages.join(', ')}</p>
+                            <p><strong>Voice Presets:</strong> ${data.voice_presets.length}</p>
+                            <p><strong>Speakers:</strong> ${data.speakers.length}</p>
+                            <p><strong>Sample Rates:</strong> ${data.sample_rates.join(', ')} Hz</p>
+                            <p><strong>Capabilities:</strong></p>
+                            <ul style="margin-left: 20px;">
+                                ${Object.entries(data.capabilities).map(([key, value]) => 
+                                    `<li>${key}: ${value ? '✅' : '❌'}</li>`
+                                ).join('')}
+                            </ul>
+                        </div>
+                    `;
+                } else {
+                    systemInfo.innerHTML = `<div style="color: red;">Error loading system info: ${data.error}</div>`;
+                }
+            } catch (error) {
+                systemInfo.innerHTML = `<div style="color: red;">Network error: ${error.message}</div>`;
+            } finally {
+                systemInfoBtn.disabled = false;
+                systemInfoBtn.innerHTML = '📊 Load System Info';
+            }
+        }
+        
+        // Event listeners
+        generateBtn.addEventListener('click', generateVoiceOver);
+        downloadBtn.addEventListener('click', downloadAudio);
+        systemInfoBtn.addEventListener('click', loadSystemInfo);
+        
+        // Auto-hide status after 5 seconds for success/error messages
+        const observer = new MutationObserver(() => {
+            if (status.classList.contains('success') || status.classList.contains('error')) {
+                setTimeout(hideStatus, 5000);
+            }
+        });
+        observer.observe(status, { attributes: true, attributeFilter: ['class'] });
+        
+        // Load system info on page load
+        window.addEventListener('load', loadSystemInfo);
+    </script>
+</body>
+</html>
+
