@@ -1,0 +1,36 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - cd egyptian-tts-frontend
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: egyptian-tts-frontend/dist
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - egyptian-tts-frontend/node_modules/**/*
+backend:
+  phases:
+    preBuild:
+      commands:
+        - cd egyptian-tts-backend
+        - python -m venv venv
+        - source venv/bin/activate
+        - pip install -r requirements.txt
+        - apt-get update
+        - apt-get install -y espeak-ng
+    build:
+      commands:
+        - echo "Backend build completed"
+  artifacts:
+    baseDirectory: egyptian-tts-backend
+    files:
+      - '**/*'
+    name: tts-backend
+
